@@ -56,6 +56,13 @@ WEB_URL_LOAD_TARGETS = [
     "https://generative-ai.web-camp.io/"
 ]
 
+# チャンクサイズとオーバーラップの設定
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
+
+# 取得するドキュメント数を定数として定義
+TOP_K = 5
+
 
 # ==========================================
 # プロンプトテンプレート

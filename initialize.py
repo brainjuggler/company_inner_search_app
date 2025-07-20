@@ -123,8 +123,8 @@ def initialize_retriever():
     
     # チャンク分割用のオブジェクトを作成
     text_splitter = CharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=ct.CHUNK_SIZE, # 【問題2】の修正
+        chunk_overlap=ct.CHUNK_OVERLAP, # 【問題2】の修正
         separator="\n"
     )
 
@@ -135,7 +135,11 @@ def initialize_retriever():
     db = Chroma.from_documents(splitted_docs, embedding=embeddings)
 
     # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": 3})
+    # 詳細に説明をすると、データベースから、入力された質問と関連性の高い情報を
+    # 指定の数だけ見つけ出す検索ツール（Retriever）を作成し、
+    # いつでも使えるようにその検索ツールをセッション状態に格納する
+    # streamlitのセッションは、再描画がされても消えないため、アプリのどこからでも呼び出せる
+    st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K}) # 【問題1】の修正
 
 
 def initialize_session_state():
