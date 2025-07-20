@@ -110,7 +110,7 @@ if chat_message:
     with st.spinner(ct.SPINNER_TEXT):
         try:
             # 画面読み込み時に作成したRetrieverを使い、Chainを実行
-            llm_response = utils.get_llm_response(chat_message)
+            llm_response, retrieved_docs = utils.get_llm_response(chat_message)
         except Exception as e:
             # エラーログの出力
             logger.error(f"{ct.GET_LLM_RESPONSE_ERROR_MESSAGE}\n{e}")
@@ -129,17 +129,18 @@ if chat_message:
             # ==========================================
             if st.session_state.mode == ct.ANSWER_MODE_1:
                 # 入力内容と関連性が高い社内文書のありかを表示
-                content = cn.display_search_llm_response(llm_response)
+                content = cn.display_search_llm_response(llm_response, retrieved_docs)
 
             # ==========================================
             # モードが「社内問い合わせ」の場合
             # ==========================================
             elif st.session_state.mode == ct.ANSWER_MODE_2:
                 # 入力に対しての回答と、参照した文書のありかを表示
-                content = cn.display_contact_llm_response(llm_response)
-            
+                content = cn.display_contact_llm_response(llm_response, retrieved_docs)
+
             # AIメッセージのログ出力
             logger.info({"message": content, "application_mode": st.session_state.mode})
+
         except Exception as e:
             # エラーログの出力
             logger.error(f"{ct.DISP_ANSWER_ERROR_MESSAGE}\n{e}")

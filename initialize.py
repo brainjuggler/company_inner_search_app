@@ -14,7 +14,7 @@ import unicodedata
 from dotenv import load_dotenv
 import streamlit as st
 from docx import Document
-from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader, Docx2txtLoader, TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -96,6 +96,16 @@ def initialize_session_id():
     if "session_id" not in st.session_state:
         # ランダムな文字列（セッションID）を、ログ出力用に作成
         st.session_state.session_id = uuid4().hex
+
+class CustomTextLoader(TextLoader):
+    """
+    文字コードを明示的に指定するためのカスタムTextLoader
+    """
+    def __init__(self, file_path: str, encoding: str = "utf-8", **kwargs):
+        """
+        デフォルトのエンコーディングをutf-8に設定
+        """
+        super().__init__(file_path, encoding=encoding, **kwargs)
 
 
 def initialize_retriever():
@@ -213,8 +223,15 @@ def file_load(path, docs_all):
     """
     # ファイルの拡張子を取得
     file_extension = os.path.splitext(path)[1]
-    # ファイル名（拡張子を含む）を取得
-    file_name = os.path.basename(path)
+
+    # PDFファイルの場合、ページ後tに読み込むローダーを使用
+    if file_extension == ".pdf":
+        # PyPDFLoaderはページごとにドキュメントを分割し、
+        # metadataにページ番号（0始まり）を自動で追加してくれます。
+        loader = PyPDFLoader(path)
+        docs = loader.load()
+        docs_all.extend(docs)
+        return
 
     # 想定していたファイル形式の場合のみ読み込む
     if file_extension in ct.SUPPORTED_EXTENSIONS:

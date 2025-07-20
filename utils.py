@@ -113,4 +113,19 @@ def get_llm_response(chat_message):
     # LLMレスポンスを会話履歴に追加
     st.session_state.chat_history.extend([HumanMessage(content=chat_message), llm_response["answer"]])
 
-    return llm_response
+    return llm_response["answer"], llm_response["context"]
+
+
+def format_display_path(path_string: str) -> str:
+    """
+    表示用にファイルパスの区切り文字を「/」に統一する。
+
+    Args:
+        path_string: 修正前のファイルパス文字列
+
+    Returns:
+        区切り文字を修正したファイルパス文字列
+    """
+    if isinstance(path_string, str):
+        return path_string.replace("\\", "/")
+    return path_string
