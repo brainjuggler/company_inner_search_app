@@ -224,7 +224,7 @@ def file_load(path, docs_all):
     # ファイルの拡張子を取得
     file_extension = os.path.splitext(path)[1]
 
-    # PDFファイルの場合、ページ後tに読み込むローダーを使用
+    # PDFファイルの場合、ページ後に読み込むローダーを使用
     if file_extension == ".pdf":
         # PyPDFLoaderはページごとにドキュメントを分割し、
         # metadataにページ番号（0始まり）を自動で追加してくれます。
