@@ -5,9 +5,9 @@
 ############################################################
 # ライブラリの読み込み
 ############################################################
-from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
+from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader
 from langchain_community.document_loaders.csv_loader import CSVLoader
-from initialize import CustomTextLoader
+from loaders import CustomTextLoader
 
 
 ############################################################
@@ -87,8 +87,8 @@ SYSTEM_PROMPT_INQUIRY = """
     以下の条件に基づき、ユーザー入力に対して回答してください。
 
     【条件】
-    1. ユーザー入力内容と以下の文脈との間に関連性がある場合のみ、以下の文脈に基づいて回答してください。
-    2. ユーザー入力内容と以下の文脈との関連性が明らかに低い場合、「回答に必要な情報が見つかりませんでした。」と回答してください。
+    1. 以下の文脈には、質問に関連する情報とそうでない情報が混在している可能性があります。文脈の中から関連する情報だけを注意深く探し出し、それに基づいて回答を生成してください。
+    2. 文脈を精査した結果、質問に回答するための情報が全く見つからなかった場合のみ、「回答に必要な情報が見つかりませんでした。」と回答してください。
     3. 憶測で回答せず、あくまで以下の文脈を元に回答してください。
     4. できる限り詳細に、マークダウン記法を使って回答してください。
     5. マークダウン記法で回答する際にhタグの見出しを使う場合、最も大きい見出しをh3としてください。

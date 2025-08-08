@@ -14,7 +14,7 @@ import unicodedata
 from dotenv import load_dotenv
 import streamlit as st
 from docx import Document
-from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader, Docx2txtLoader, TextLoader
+from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -97,16 +97,6 @@ def initialize_session_id():
         # ランダムな文字列（セッションID）を、ログ出力用に作成
         st.session_state.session_id = uuid4().hex
 
-class CustomTextLoader(TextLoader):
-    """
-    文字コードを明示的に指定するためのカスタムTextLoader
-    """
-    def __init__(self, file_path: str, encoding: str = "utf-8", **kwargs):
-        """
-        デフォルトのエンコーディングをutf-8に設定
-        """
-        super().__init__(file_path, encoding=encoding, **kwargs)
-
 
 def initialize_retriever():
     """
@@ -149,7 +139,10 @@ def initialize_retriever():
     # 指定の数だけ見つけ出す検索ツール（Retriever）を作成し、
     # いつでも使えるようにその検索ツールをセッション状態に格納する
     # streamlitのセッションは、再描画がされても消えないため、アプリのどこからでも呼び出せる
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": ct.TOP_K}) # 【問題1】の修正
+    st.session_state.retriever = db.as_retriever(
+        search_type="mmr", # 「mrr」は「最小関連性のある結果」を意味する
+        search_kwargs={"k": ct.TOP_K} # 【問題1】の修正
+        )
 
 
 def initialize_session_state():
