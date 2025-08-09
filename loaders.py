@@ -29,29 +29,26 @@ class CustomCsvLoader(BaseLoader):
         self.encoding = encoding
 
     def load(self) -> list[Document]:
-        """CSVファイルを読み込み、単一のDocumentオブジェクトを返す"""
+        """CSVファイルを読み込み、行ごとに個別のDocumentオブジェクトのリストを返す"""
 
-        # pandasを使用してCSVファイルを読み込む
         df = pd.read_csv(self.file_path, encoding=self.encoding)
 
-        all_rows_as_string = []
+        docs = []
         # データフレームの各行をループ処理
         for index, row in df.iterrows():
             row_items = []
             # 行の中の各列をループ処理
             for col_name, value in row.items():
-                # 「項目名: 値」の形式の文字列を作成
                 row_items.append(f"{col_name}: {value}")
 
             # 1行分の情報をカンマ区切りの文字列に結合
             row_string = ", ".join(row_items)
-            all_rows_as_string.append(f"従業員情報: {row_string}")
+            page_content = f"従業員情報: {row_string}"
 
-        # 全行の情報を改行2つで区切って、1つの大きなテキストに結合
-        full_content = "\n\n".join(all_rows_as_string)
+            # メタデータを作成
+            metadata = {"source": self.file_path}
 
-        # メタデータを作成
-        metadata = {"source": self.file_path}
+            # 行ごとにDocumentオブジェクトを作成してリストに追加
+            docs.append(Document(page_content=page_content, metadata=metadata))
 
-        # 単一のDocumentオブジェクトを作成してリストで返す
-        return [Document(page_content=full_content, metadata=metadata)]
+        return docs
