@@ -6,8 +6,7 @@
 # ライブラリの読み込み
 ############################################################
 from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader
-from langchain_community.document_loaders.csv_loader import CSVLoader
-from loaders import CustomTextLoader
+from loaders import CustomTextLoader, CustomCsvLoader 
 
 
 ############################################################
@@ -50,7 +49,7 @@ TEMPERATURE = 0.5
 RAG_TOP_FOLDER_PATH = "./data"
 SUPPORTED_EXTENSIONS = {
     ".docx": Docx2txtLoader,
-    ".csv": lambda path: CSVLoader(path, encoding="utf-8"),
+    ".csv": CustomCsvLoader,
     ".txt": CustomTextLoader,
 }
 WEB_URL_LOAD_TARGETS = [

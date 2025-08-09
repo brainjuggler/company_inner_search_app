@@ -2,6 +2,9 @@
 このファイルは、LangChainのTextLoaderを拡張して、
 文字コードを明示的に指定できるようにするためのカスタムローダーを定義しています。
 """
+import pandas as pd
+from langchain_core.documents import Document
+from langchain_community.document_loaders.base import BaseLoader
 from langchain_community.document_loaders import TextLoader
 
 class CustomTextLoader(TextLoader):
@@ -13,3 +16,42 @@ class CustomTextLoader(TextLoader):
         デフォルトのエンコーディングをutf-8に設定
         """
         super().__init__(file_path, encoding=encoding, **kwargs)
+
+
+class CustomCsvLoader(BaseLoader):
+    """
+    CSVファイルの全行を1つのドキュメントとして読み込むカスタムローダー。
+    各行は「項目名: 値」の形式でテキスト化され、検索精度を向上させます。
+    """
+    def __init__(self, file_path: str, encoding: str = "utf-8"):
+        """ローダーを初期化"""
+        self.file_path = file_path
+        self.encoding = encoding
+
+    def load(self) -> list[Document]:
+        """CSVファイルを読み込み、単一のDocumentオブジェクトを返す"""
+
+        # pandasを使用してCSVファイルを読み込む
+        df = pd.read_csv(self.file_path, encoding=self.encoding)
+
+        all_rows_as_string = []
+        # データフレームの各行をループ処理
+        for index, row in df.iterrows():
+            row_items = []
+            # 行の中の各列をループ処理
+            for col_name, value in row.items():
+                # 「項目名: 値」の形式の文字列を作成
+                row_items.append(f"{col_name}: {value}")
+
+            # 1行分の情報をカンマ区切りの文字列に結合
+            row_string = ", ".join(row_items)
+            all_rows_as_string.append(f"従業員情報: {row_string}")
+
+        # 全行の情報を改行2つで区切って、1つの大きなテキストに結合
+        full_content = "\n\n".join(all_rows_as_string)
+
+        # メタデータを作成
+        metadata = {"source": self.file_path}
+
+        # 単一のDocumentオブジェクトを作成してリストで返す
+        return [Document(page_content=full_content, metadata=metadata)]
